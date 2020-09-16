@@ -51,7 +51,7 @@ export class TranslateService {
   private loadTranslations(language: string): void {
     this.translations = null;
     this.http
-      .get<Translations>(`/assets/${language}.json`)
+      .get<Translations>(`assets/${language}.json`)
       .subscribe((translations) => {
         this.translations = translations;
         this.onTranslationChange.emit(translations);
