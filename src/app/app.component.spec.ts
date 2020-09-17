@@ -1,31 +1,45 @@
-import { TestBed } from '@angular/core/testing';
+import { Pipe, PipeTransform } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
 import { AppComponent } from './app.component';
+import { TranslateService } from './translate.service';
+
+class FakeTranslateService implements Partial<TranslateService> {
+  public use(): void {}
+}
+
+@Pipe({ name: 'translate' })
+class FakeTranslatePipe implements PipeTransform {
+  public transform(): string {
+    return 'FakeTranslatePipe#transform';
+  }
+}
 
 describe('AppComponent', () => {
+  let fixture: ComponentFixture<AppComponent>;
+  let translateService: TranslateService;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
+      declarations: [AppComponent, FakeTranslatePipe],
+      providers: [
+        { provide: TranslateService, useClass: FakeTranslateService },
       ],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'use');
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'translate-pipe'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('translate-pipe');
-  });
+  xit('changes the language', () => {});
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('translate-pipe app is running!');
-  });
+  xit('renders a greeting', () => {});
 });

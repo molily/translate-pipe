@@ -26,8 +26,7 @@ export class TranslatePipe implements PipeTransform, OnDestroy {
     this.onTranslationChangeSubscription = this.translateService.onTranslationChange.subscribe(
       () => {
         if (this.lastKey) {
-          this.translation = this.translateService.instant(this.lastKey);
-          this.changeDetectorRef.markForCheck();
+          this.getTranslation(this.lastKey);
         }
       }
     );
@@ -36,16 +35,20 @@ export class TranslatePipe implements PipeTransform, OnDestroy {
   public transform(key: string): string | null {
     if (key !== this.lastKey) {
       this.lastKey = key;
-      this.getSubscription?.unsubscribe();
-      this.getSubscription = this.translateService
-        .get(key)
-        .subscribe((translation) => {
-          this.translation = translation;
-          this.changeDetectorRef.markForCheck();
-          this.getSubscription = null;
-        });
+      this.getTranslation(key);
     }
     return this.translation;
+  }
+
+  private getTranslation(key: string): void {
+    this.getSubscription?.unsubscribe();
+    this.getSubscription = this.translateService
+      .get(key)
+      .subscribe((translation) => {
+        this.translation = translation;
+        this.changeDetectorRef.markForCheck();
+        this.getSubscription = null;
+      });
   }
 
   ngOnDestroy(): void {
