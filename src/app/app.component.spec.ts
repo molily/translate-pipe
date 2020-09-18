@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AppComponent } from './app.component';
+import { expectText, findEl } from './spec-helpers/element.spec-helper';
 import { TranslateService } from './translate.service';
 
 class FakeTranslateService implements Partial<TranslateService> {
@@ -10,8 +11,8 @@ class FakeTranslateService implements Partial<TranslateService> {
 
 @Pipe({ name: 'translate' })
 class FakeTranslatePipe implements PipeTransform {
-  public transform(): string {
-    return 'FakeTranslatePipe#transform';
+  public transform(key: string): string {
+    return `[Translation for ${key}]`;
   }
 }
 
@@ -39,7 +40,15 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  xit('changes the language', () => {});
+  it('changes the language', () => {
+    const select = findEl(fixture, 'language-select');
+    select.triggerEventHandler('change', {
+      target: { value: 'fr' },
+    });
+    expect(translateService.use).toHaveBeenCalledWith('fr');
+  });
 
-  xit('renders a greeting', () => {});
+  it('renders a greeting', () => {
+    expectText(fixture, 'greeting', '[Translation for greeting]');
+  });
 });

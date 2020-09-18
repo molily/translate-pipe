@@ -1,7 +1,10 @@
 <p>
   <label>
     Choose language:
-    <select (change)="useLanguage($event.target.value)">
+    <select
+      (change)="useLanguage($event.target.value)"
+      data-testid="language-select"
+    >
       <option value="en">English</option>
       <option value="fr">Français</option>
       <option value="de">Deutsch</option>
@@ -9,4 +12,4 @@
   </label>
 </p>
 
-<h1>{{ "greeting" | translate }}</h1>
+<h1 data-testid="greeting">{{ "greeting" | translate }}</h1>
