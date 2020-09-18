@@ -74,7 +74,7 @@ class FakeChangeDetectorRef implements Pick<ChangeDetectorRef, 'markForCheck'> {
   markForCheck(): void {}
 }
 
-fdescribe('TranslatePipe bare', () => {
+describe('TranslatePipe bare', () => {
   let translatePipe: TranslatePipe;
   let changeDetectorRef: FakeChangeDetectorRef;
   let translateService: FakeTranslateService;
