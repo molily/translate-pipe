@@ -154,9 +154,9 @@ fdescribe('TranslatePipe bare', () => {
 
     translateService.get = (key: string) => of(`[New translation for ${key}]`);
     translateService.onTranslationChange.emit({});
+    expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(2);
 
     const translation2 = translatePipe.transform(key1);
     expect(translation2).toBe('[New translation for key1]');
-    expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(2);
   });
 });
