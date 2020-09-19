@@ -5,9 +5,10 @@ import {
   TestBed,
   tick,
 } from '@angular/core/testing';
-import { Observable, of, VirtualTimeScheduler } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
+import { expectContent } from './spec-helpers/element.spec-helper';
 import { TranslatePipe } from './translate.pipe';
 import { TranslateService, Translations } from './translate.service';
 
@@ -17,7 +18,7 @@ const key2 = 'key2';
 class FakeTranslateService implements Partial<TranslateService> {
   public onTranslationChange = new EventEmitter<Translations>();
   public get(key: string): Observable<string> {
-    return of(`[Translation for ${key}]`);
+    return of(`Translation for ${key}`);
   }
 }
 
@@ -28,7 +29,7 @@ class HostComponent {
   public key = key1;
 }
 
-describe('TranslatePipe with HostComponent', () => {
+describe('TranslatePipe: with TestBed and HostComponent', () => {
   let fixture: ComponentFixture<HostComponent>;
   let translateService: TranslateService;
 
@@ -43,30 +44,40 @@ describe('TranslatePipe with HostComponent', () => {
     translateService = TestBed.inject(TranslateService);
 
     fixture = TestBed.createComponent(HostComponent);
-    fixture.detectChanges();
   });
 
-  it('translates the key', () => {
-    expect(fixture.debugElement.nativeElement.textContent).toBe(
-      '[Translation for key1]'
-    );
+  it('translates the key, sync service response', () => {
+    fixture.detectChanges();
+
+    expectContent(fixture, 'Translation for key1');
   });
+
+  it('translates the key, async service response', fakeAsync(() => {
+    translateService.get = (key) =>
+      of(`Async translation for ${key}`).pipe(delay(100));
+    fixture.detectChanges();
+
+    expectContent(fixture, '');
+
+    tick(100);
+    fixture.detectChanges();
+
+    expectContent(fixture, 'Async translation for key1');
+  }));
 
   it('translates a changed key', () => {
+    fixture.detectChanges();
     fixture.componentInstance.key = key2;
     fixture.detectChanges();
-    expect(fixture.debugElement.nativeElement.textContent).toBe(
-      '[Translation for key2]'
-    );
+    expectContent(fixture, 'Translation for key2');
   });
 
   it('updates on translation change', () => {
-    translateService.get = (key: string) => of(`[New translation for ${key}]`);
+    fixture.detectChanges();
+    translateService.get = (key) => of(`New translation for ${key}`);
     translateService.onTranslationChange.emit({});
     fixture.detectChanges();
-    expect(fixture.debugElement.nativeElement.textContent).toBe(
-      '[New translation for key1]'
-    );
+    expectContent(fixture, 'New translation for key1');
   });
 });
 
@@ -74,8 +85,9 @@ class FakeChangeDetectorRef implements Pick<ChangeDetectorRef, 'markForCheck'> {
   markForCheck(): void {}
 }
 
-describe('TranslatePipe bare', () => {
+describe('TranslatePipe: unit test', () => {
   let translatePipe: TranslatePipe;
+
   let changeDetectorRef: FakeChangeDetectorRef;
   let translateService: FakeTranslateService;
 
@@ -91,72 +103,55 @@ describe('TranslatePipe bare', () => {
     );
   });
 
-  it('translates the key, sync service responsex', () => {
+  it('translates the key, sync service response', () => {
     const translation = translatePipe.transform(key1);
-    expect(translation).toBe('[Translation for key1]');
+    expect(translation).toBe('Translation for key1');
     expect(changeDetectorRef.markForCheck).toHaveBeenCalled();
   });
 
-  it('translates the key, async service response (1)', () => {
-    const scheduler = new VirtualTimeScheduler();
-    translateService.get = (key: string) =>
-      of(`[Translation for ${key}]`).pipe(delay(1, scheduler));
+  it('translates the key, async service response', fakeAsync(() => {
+    translateService.get = (key) =>
+      of(`Async translation for ${key}`).pipe(delay(100));
 
     const translation1 = translatePipe.transform(key1);
     expect(translation1).toBe(null);
-    scheduler.flush();
+
+    tick(100);
 
     const translation2 = translatePipe.transform(key1);
-    expect(translation2).toBe('[Translation for key1]');
-  });
-
-  it('translates the key, async service response (2)', fakeAsync(() => {
-    translateService.get = (key: string) =>
-      new Observable((subscriber) => {
-        setTimeout(() => {
-          subscriber.next(`[Translation for ${key}]`);
-          subscriber.complete();
-        }, 1);
-      });
-
-    const translation1 = translatePipe.transform(key1);
-    expect(translation1).toBe(null);
-    tick(1);
-
-    const translation2 = translatePipe.transform(key1);
-    expect(translation2).toBe('[Translation for key1]');
+    expect(translation2).toBe('Async translation for key1');
   }));
 
   it('gets a translation for a key only once', () => {
     spyOn(translateService, 'get').and.callThrough();
 
     const translation1 = translatePipe.transform(key1);
-    expect(translation1).toBe('[Translation for key1]');
+    expect(translation1).toBe('Translation for key1');
     expect(translateService.get).toHaveBeenCalledTimes(1);
 
     const translation2 = translatePipe.transform(key1);
-    expect(translation2).toBe('[Translation for key1]');
+    expect(translation2).toBe('Translation for key1');
     expect(translateService.get).toHaveBeenCalledTimes(1);
   });
 
-  it('translates a changed key, sync response', () => {
+  it('translates a changed key', () => {
     const translation1 = translatePipe.transform(key1);
-    expect(translation1).toBe('[Translation for key1]');
+    expect(translation1).toBe('Translation for key1');
 
     const translation2 = translatePipe.transform(key2);
-    expect(translation2).toBe('[Translation for key2]');
+    expect(translation2).toBe('Translation for key2');
   });
 
   it('updates on translation change', () => {
     const translation1 = translatePipe.transform(key1);
-    expect(translation1).toBe('[Translation for key1]');
+    expect(translation1).toBe('Translation for key1');
     expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(1);
 
-    translateService.get = (key: string) => of(`[New translation for ${key}]`);
+    translateService.get = (key) => of(`New translation for ${key}`);
     translateService.onTranslationChange.emit({});
     expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(2);
 
     const translation2 = translatePipe.transform(key1);
-    expect(translation2).toBe('[New translation for key1]');
+    expect(translation2).toBe('New translation for key1');
   });
 });
