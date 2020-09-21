@@ -48,7 +48,6 @@ describe('TranslatePipe: with TestBed and HostComponent', () => {
 
   it('translates the key, sync service response', () => {
     fixture.detectChanges();
-
     expectContent(fixture, 'Translation for key1');
   });
 
@@ -56,12 +55,10 @@ describe('TranslatePipe: with TestBed and HostComponent', () => {
     translateService.get = (key) =>
       of(`Async translation for ${key}`).pipe(delay(100));
     fixture.detectChanges();
-
     expectContent(fixture, '');
 
     tick(100);
     fixture.detectChanges();
-
     expectContent(fixture, 'Async translation for key1');
   }));
 
@@ -85,7 +82,7 @@ class FakeChangeDetectorRef implements Pick<ChangeDetectorRef, 'markForCheck'> {
   markForCheck(): void {}
 }
 
-describe('TranslatePipe: unit test', () => {
+describe('TranslatePipe: direct test', () => {
   let translatePipe: TranslatePipe;
 
   let changeDetectorRef: FakeChangeDetectorRef;
