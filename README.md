@@ -1,5 +1,7 @@
 # TranslatePipe
 
+Example for a complex asynchronous Pipe with specs. The API of TranslateService and TranslatePipe is modeled after [ngx-translate](https://github.com/ngx-translate/core).
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.0.
 
 ## Development server
