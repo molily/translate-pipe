@@ -9,7 +9,7 @@ export interface Translations {
 
 @Injectable()
 export class TranslateService {
-  /** The current langage */
+  /** The current language */
   private currentLang = 'en';
 
   /** Translations for the current language */
