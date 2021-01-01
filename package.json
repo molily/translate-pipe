@@ -11,6 +11,7 @@
   },
   "private": true,
   "license": "Unlicense",
+  "author": "Mathias Schäfer <molily@mailbox.org> (https://molily.de)",
   "dependencies": {
     "@angular/animations": "~10.1.0",
     "@angular/common": "~10.1.0",
