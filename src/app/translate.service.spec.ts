@@ -25,8 +25,8 @@ describe('TranslateService', () => {
       .flush(frenchTranslations);
   }
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [TranslateService],
     });

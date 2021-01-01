@@ -39,10 +39,9 @@ describe('TranslatePipe: with TestBed and HostComponent', () => {
       providers: [
         { provide: TranslateService, useClass: FakeTranslateService },
       ],
-    });
+    }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
-
     fixture = TestBed.createComponent(HostComponent);
   });
 

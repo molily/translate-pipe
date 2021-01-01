@@ -51,7 +51,7 @@ export class TranslatePipe implements PipeTransform, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.onTranslationChangeSubscription.unsubscribe();
     if (this.getSubscription) {
       this.getSubscription.unsubscribe();
