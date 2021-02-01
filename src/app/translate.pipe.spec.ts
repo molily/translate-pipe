@@ -102,8 +102,7 @@ describe('TranslatePipe: direct test', () => {
   });
 
   it('translates the key, async service response', fakeAsync(() => {
-    translateService.get = (key: string) =>
-      of(`Async translation for ${key}`).pipe(delay(100));
+    translateService.get = (key) => of(`Async translation for ${key}`).pipe(delay(100));
 
     const translation1 = translatePipe.transform(key1);
     expect(translation1).toBe(null);
@@ -139,7 +138,7 @@ describe('TranslatePipe: direct test', () => {
     expect(translation1).toBe('Translation for key1');
     expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(1);
 
-    translateService.get = (key: string) => of(`New translation for ${key}`);
+    translateService.get = (key) => of(`New translation for ${key}`);
     translateService.onTranslationChange.emit({});
     expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(2);
 
