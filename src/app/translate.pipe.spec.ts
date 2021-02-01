@@ -1,10 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
@@ -15,13 +10,6 @@ import { TranslateService, Translations } from './translate.service';
 const key1 = 'key1';
 const key2 = 'key2';
 
-class FakeTranslateService implements Partial<TranslateService> {
-  public onTranslationChange = new EventEmitter<Translations>();
-  public get(key: string): Observable<string> {
-    return of(`Translation for ${key}`);
-  }
-}
-
 @Component({
   template: '{{ key | translate }}',
 })
@@ -31,14 +19,19 @@ class HostComponent {
 
 describe('TranslatePipe: with TestBed and HostComponent', () => {
   let fixture: ComponentFixture<HostComponent>;
-  let translateService: TranslateService;
+  let translateService: Pick<TranslateService, 'onTranslationChange' | 'get'>;
 
   beforeEach(async () => {
+    translateService = {
+      onTranslationChange: new EventEmitter<Translations>(),
+      get(key: string): Observable<string> {
+        return of(`Translation for ${key}`);
+      },
+    };
+
     await TestBed.configureTestingModule({
       declarations: [TranslatePipe, HostComponent],
-      providers: [
-        { provide: TranslateService, useClass: FakeTranslateService },
-      ],
+      providers: [{ provide: TranslateService, useValue: translateService }],
     }).compileComponents();
 
     translateService = TestBed.inject(TranslateService);
@@ -51,8 +44,7 @@ describe('TranslatePipe: with TestBed and HostComponent', () => {
   });
 
   it('translates the key, async service response', fakeAsync(() => {
-    translateService.get = (key) =>
-      of(`Async translation for ${key}`).pipe(delay(100));
+    translateService.get = (key) => of(`Async translation for ${key}`).pipe(delay(100));
     fixture.detectChanges();
     expectContent(fixture, '');
 
@@ -77,25 +69,29 @@ describe('TranslatePipe: with TestBed and HostComponent', () => {
   });
 });
 
-class FakeChangeDetectorRef implements Pick<ChangeDetectorRef, 'markForCheck'> {
-  markForCheck(): void {}
-}
-
 describe('TranslatePipe: direct test', () => {
   let translatePipe: TranslatePipe;
 
-  let changeDetectorRef: FakeChangeDetectorRef;
-  let translateService: FakeTranslateService;
+  let changeDetectorRef: Pick<ChangeDetectorRef, 'markForCheck'>;
+  let translateService: Pick<TranslateService, 'onTranslationChange' | 'get'>;
 
   beforeEach(() => {
-    changeDetectorRef = new FakeChangeDetectorRef();
-    translateService = new FakeTranslateService();
+    changeDetectorRef = {
+      markForCheck(): void {},
+    };
+
+    translateService = {
+      onTranslationChange: new EventEmitter<Translations>(),
+      get(key: string): Observable<string> {
+        return of(`Translation for ${key}`);
+      },
+    };
 
     spyOn(changeDetectorRef, 'markForCheck');
 
     translatePipe = new TranslatePipe(
       changeDetectorRef as ChangeDetectorRef,
-      translateService as TranslateService
+      translateService as TranslateService,
     );
   });
 
@@ -106,7 +102,7 @@ describe('TranslatePipe: direct test', () => {
   });
 
   it('translates the key, async service response', fakeAsync(() => {
-    translateService.get = (key) =>
+    translateService.get = (key: string) =>
       of(`Async translation for ${key}`).pipe(delay(100));
 
     const translation1 = translatePipe.transform(key1);
@@ -143,7 +139,7 @@ describe('TranslatePipe: direct test', () => {
     expect(translation1).toBe('Translation for key1');
     expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(1);
 
-    translateService.get = (key) => of(`New translation for ${key}`);
+    translateService.get = (key: string) => of(`New translation for ${key}`);
     translateService.onTranslationChange.emit({});
     expect(changeDetectorRef.markForCheck).toHaveBeenCalledTimes(2);
 

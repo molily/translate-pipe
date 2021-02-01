@@ -5,9 +5,9 @@ import { AppComponent } from './app.component';
 import { expectText, findEl } from './spec-helpers/element.spec-helper';
 import { TranslateService } from './translate.service';
 
-class FakeTranslateService implements Partial<TranslateService> {
-  public use(): void {}
-}
+const fakeTranslateService: Partial<TranslateService> = {
+  use(): void {}
+};
 
 @Pipe({ name: 'translate' })
 class FakeTranslatePipe implements PipeTransform {
@@ -24,7 +24,7 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [AppComponent, FakeTranslatePipe],
       providers: [
-        { provide: TranslateService, useClass: FakeTranslateService },
+        { provide: TranslateService, useValue: fakeTranslateService },
       ],
     }).compileComponents();
 
