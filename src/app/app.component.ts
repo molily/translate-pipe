@@ -9,7 +9,11 @@ import { TranslateService } from './translate.service';
 export class AppComponent {
   constructor(private translateService: TranslateService) {}
 
-  public useLanguage(language: string): void {
+  public useLanguage(event: Event): void {
+    if (!(event.target instanceof HTMLSelectElement)) {
+      throw new Error('Event target is not a select element');
+    }
+    const language = event.target.value;
     this.translateService.use(language);
   }
 }
