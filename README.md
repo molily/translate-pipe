@@ -1,5 +1,8 @@
 # TranslatePipe
 
+📖 This example is part of the **[free online book: Testing Angular – A Guide to Robust Angular Applications
+](https://molily.de/testing-angular/)**. 📖
+
 Example for a complex asynchronous Pipe with specs. The API of TranslateService and TranslatePipe is modeled after [ngx-translate](https://github.com/ngx-translate/core).
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.0.
