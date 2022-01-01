@@ -35,9 +35,8 @@ describe('AppComponent', () => {
     spyOn(translateService, 'use');
   });
 
-  it('should create the app', () => {
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  it('renders without errors', () => {
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
   it('changes the language', () => {
